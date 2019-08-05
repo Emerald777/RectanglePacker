@@ -12,28 +12,35 @@ int main()
     Packer packer;
     Size sz;
 
-    if (scanf("%d, %d", &sz.first, &sz.second) == EOF) {
+    if (scanf("%d,%d", &sz.first, &sz.second) == EOF) {
         printf("Error while reading container data!\n");
         return -1;
     }
     packer.setupContainer(Rectangle(sz.first, sz.second));
 
+#ifndef RAW_OUT_DATA
     const auto& cont = packer.container();
     printf("Container square %d - (%d, %d)\n\n",
                     cont.square(), cont.width(), cont.height());
+#endif
 
-    while (scanf("%d, %d", &sz.first, &sz.second) != EOF)
+    while (scanf("%d,%d", &sz.first, &sz.second) != EOF)
     {
         packer.addBlock(sz.first, sz.second);
     }
 
+#ifndef RAW_OUT_DATA
     auto t1 = std::chrono::steady_clock::now();
+#endif
 
     packer.exec();
 
+#ifndef RAW_OUT_DATA
     auto t2 = std::chrono::steady_clock::now();
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+
     printf("\nDone in %d ms\n", static_cast<int>(elapsed_ms.count()) );
+#endif
 
     _getch();
     return 0;

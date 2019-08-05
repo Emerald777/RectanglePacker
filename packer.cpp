@@ -45,16 +45,19 @@ bool cmpSquare(const Rectangle &a, const Rectangle &b)
 
 void Packer::exec()
 {
+#ifndef RAW_OUT_DATA
+
 #ifdef DEBUG
     printBasket();
 #endif
 
     printInputBlocksInfo();
+#endif
 
     int ignoredBlocks = 0;
-    int basketNum = 0;
+    _basketCount = 0;
 
-    /// Ignore blocks that are too big for our Basket
+    /// Ignore blocks which are too big for our Basket
     for (auto it = _blocks.begin(); it != _blocks.end();)
     {
         if (!(*it).tryToFitWithin(_basket)) {
@@ -65,20 +68,27 @@ void Packer::exec()
             ++it;
     }
 
+#ifndef RAW_OUT_DATA
     printTotalSquareToPlace();
+#endif
 
     _blocks.sort(cmpHeight);
 
     while (!_blocks.empty())
     {
-        fillBasket(basketNum);
-        ++basketNum;
+        fillBasket(_basketCount);
+        ++_basketCount;
     }
 
+#ifndef RAW_OUT_DATA
     printf("%d blocks was ignored\n", ignoredBlocks);
+#endif
 
     printPlacedBlocksInfo();
+
+#ifndef RAW_OUT_DATA
     printUnplacedBlocksInfo();
+#endif
 }
 
 void Packer::printTotalSquareToPlace() const
@@ -92,9 +102,12 @@ void Packer::printTotalSquareToPlace() const
 
 void Packer::printPlacedBlocksInfo() const
 {
+ #ifndef RAW_OUT_DATA
     printf("\nAmount of placed blocks: %d\n", _placedBlocks.size());
-
     printf("\nPlaced blocks:\n");
+#endif
+
+    printf("%d,%d,%d\n", _basketCount, _basket.width(), _basket.height());
     for (auto el : _placedBlocks) {
         printf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", el.first, el.second.topLeft().x, el.second.topLeft().y,
                                                       el.second.topRight().x, el.second.topRight().y,
