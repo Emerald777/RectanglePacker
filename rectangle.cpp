@@ -108,15 +108,6 @@ Rectangle Rectangle::fitWithinClone(const Rectangle &other, bool& horizontal) co
     return (horizontal) ? horizontalClone() : verticalClone();
 }
 
-void Rectangle::rotateHorizontal()
-{
-
-}
-
-void Rectangle::rotateVecrtical()
-{
-
-}
 
 bool Rectangle::tryToFitWithin(const Rectangle &other) const
 {

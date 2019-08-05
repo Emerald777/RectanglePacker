@@ -43,10 +43,6 @@ public:
     Rectangle verticalClone() const;
     Rectangle fitWithinClone(const Rectangle& other, bool &horizontal) const;
 
-    /// Deep optimization
-    void rotateHorizontal();
-    void rotateVecrtical();
-
     bool tryToFitWithin(const Rectangle& other) const;
 
     int width() const;

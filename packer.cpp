@@ -127,21 +127,6 @@ void Packer::printInputBlocksInfo() const
     printf("We have %d blocks to place\n", _blocks.size());
 }
 
-//template<class Iter>
-//auto Packer::placeFirstBlock(Iter const& it, int basket, bool& horizontal) -> Iter
-//{
-//    assert(typeid(*it) == typeid(Rectangle));
-
-//    auto block = (*it).fitWithinClone(_basket, horizontal);
-//    _placedBlocks.insert(std::pair<int, Rectangle>(basket, block));
-//    return _blocks.erase(it);
-//}
-
-//auto Packer::findBlockMaxSquare() const -> decltype(_blocks.begin())
-//{
-//    return std::max_element(_blocks.begin(), _blocks.end(), cmpSquare);
-//}
-
 void Packer::fillBasket(int &basketNum)
 {
     int amount = 0;

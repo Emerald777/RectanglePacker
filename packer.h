@@ -12,13 +12,6 @@ class Packer
     int _basketCount;
 
 private:
-
-    /// Кладет блок в левый верхний угол
-//    template<class Iter>
-//    auto placeFirstBlock(Iter const& it, int basket, bool& horizontal) -> Iter;
-
-    //auto findBlockMaxSquare() const -> decltype(_blocks.begin());
-
     void fillBasket(int& basketNum);
 
 public:

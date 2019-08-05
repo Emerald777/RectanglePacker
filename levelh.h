@@ -2,7 +2,8 @@
 
 #include "userdefines.h"
 
-/// Horizontal
+/// Horizontal Level of blocks
+/// Fills the empty space of base Rectangle with other rectangles
 
 class LevelH
 {
