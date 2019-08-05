@@ -1,0 +1,1 @@
+algo < in.txt > out.txt
