@@ -3,63 +3,88 @@
 
 #include "point.h"
 
-class Rectangle
+namespace Geometry
 {
-    int _width;
-    int _height;
 
-    int _sqr;
+    enum class Orientation {
+        Horizontal,
+        Vertical,
+        Custom
+    };
 
-    Point _topLeft;
-    Point _topRight;
-    Point _btmLeft;
-    Point _btmRight;
+    class Rectangle
+    {
+        float m_width;
+        float m_height;
 
-private:
-    void updateDimensions();
+        float m_sqr;
 
-public:
-    Rectangle();
-    Rectangle(int w, int h, bool normal = false); /// normal - width >= height
-    Rectangle(const Rectangle& other) = default;
+        FPoint m_topLeft;
+        FPoint m_topRight;
+        FPoint m_btmLeft;
+        FPoint m_btmRight;
 
-    int square() const;
-    Point topLeft() const;
-    Point topRight() const;
-    Point bottomRight() const;
-    Point bottomLeft() const;
+    private:
+        static void toggleOrientation(Orientation& o);
+        void updateDimensions();
+
+    public:
+        Rectangle();
+        Rectangle(float w, float h, bool normal = false); /// normal - width >= height
+        Rectangle(const Rectangle& other) = default;
+
+        float square() const;
+        FPoint topLeft() const;
+        FPoint topRight() const;
+        FPoint bottomRight() const;
+        FPoint bottomLeft() const;
 
 
-    void move(const Point &newPos);
+        void move(const FPoint &newPos);
 
-    void cutTop(int dx);
-    void cutBottom(int dx);
-    void cutLeft(int dx);
-    void cutRight(int dx);
+        void cutTop(float dx);
+        void cutBottom(float dx);
+        void cutLeft(float dx);
+        void cutRight(float dx);
 
-    Point massCenter();
+        FPoint massCenter() const;
 
-    Rectangle horizontalClone() const;
-    Rectangle verticalClone() const;
-    Rectangle fitWithinClone(const Rectangle& other, bool &horizontal) const;
+        Rectangle cloneHorizontal() const;
+        Rectangle cloneVertical() const;
+        Rectangle cloneRotated(float radians) const;
+        Rectangle cloneOriented(const Orientation &o) const;
+        Rectangle cloneFitted(const Rectangle& other) const;
 
-    bool tryToFitWithin(const Rectangle& other) const;
+        bool tryToFit(const Rectangle& other, Orientation& orient) const;
+        bool tryToFit(const Rectangle& other) const;
 
-    int width() const;
-    int height() const;
+        Orientation orientation() const;
 
-    int normalizedWidth() const;   /// Maximum of dimensions
-    int normalizedHeight() const;  /// Minimum of dimensions
 
-    bool operator<(const Rectangle& other) const {
-        return this->_sqr < other._sqr;
-    }
+        float width() const;
+        float height() const;
 
-    bool operator>(const Rectangle& other) const {
-        return this->_sqr > other._sqr;
-    }
+        float normalizedWidth() const;   /// Maximum of dimensions
+        float normalizedHeight() const;  /// Minimum of dimensions
 
-    Rectangle& operator=(const Rectangle& other) = default;
-};
+        bool hasInside(const FPoint &p) const;
+
+        bool operator<(const Rectangle& other) const {
+            return this->m_sqr < other.m_sqr;
+        }
+
+        bool operator>(const Rectangle& other) const {
+            return this->m_sqr > other.m_sqr;
+        }
+
+        Rectangle& operator=(const Rectangle& other) = default;
+
+        void printBorders() const;
+        void printDimensions() const;
+
+    };
+
+    std::ostream& operator<< (std::ostream &out, const Rectangle &r);
+}
 
 #endif // RECTANGLE_H

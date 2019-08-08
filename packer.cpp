@@ -7,41 +7,42 @@
 
 #include "levelh.h"
 
-Packer::Packer() : _basketCount(0)
+Packer::Packer() : m_basketCount(0)
 {
 
 }
 
-void Packer::setupContainer(const Rectangle &newCont)
+void Packer::setupContainer(const Geometry::Rectangle &newCont)
 {
-    _basket = newCont;
-    _basketCount = 1;
+    m_basket = newCont;
+    m_basketCount = 1;
 }
 
-Rectangle Packer::container() const
+Geometry::Rectangle Packer::container() const
 {
-    return _basket;
+    return m_basket;
 }
 
 void Packer::addBlock(int w, int h)
 {
-    _blocks.push_back(Rectangle(w, h, true));
+    m_blocks.push_back(Geometry::Rectangle(w, h, true));
 }
 
-bool cmpHeight(const Rectangle &a, const Rectangle &b)
+bool cmpHeight(const Geometry::Rectangle &a, const Geometry::Rectangle &b)
 {
     return a.height() > b.height();
 }
 
-bool cmpWidth(const Rectangle &a, const Rectangle &b)
+bool cmpWidth(const Geometry::Rectangle &a, const Geometry::Rectangle &b)
 {
     return a.width() > b.width();
 }
 
-bool cmpSquare(const Rectangle &a, const Rectangle &b)
+bool cmpSquare(const Geometry::Rectangle &a, const Geometry::Rectangle &b)
 {
     return a.square() < b.square();
 }
+
 
 void Packer::exec()
 {
@@ -55,13 +56,13 @@ void Packer::exec()
 #endif
 
     int ignoredBlocks = 0;
-    _basketCount = 0;
+    m_basketCount = 0;
 
     /// Ignore blocks which are too big for our Basket
-    for (auto it = _blocks.begin(); it != _blocks.end();)
+    for (auto it = m_blocks.begin(); it != m_blocks.end();)
     {
-        if (!(*it).tryToFitWithin(_basket)) {
-            it = _blocks.erase(it);
+        if (!(*it).tryToFit(m_basket)) {
+            it = m_blocks.erase(it);
             ++ignoredBlocks;
         }
         else
@@ -72,12 +73,12 @@ void Packer::exec()
     printTotalSquareToPlace();
 #endif
 
-    _blocks.sort(cmpHeight);
+    m_blocks.sort(cmpHeight);
 
-    while (!_blocks.empty())
+    while (!m_blocks.empty())
     {
-        fillBasket(_basketCount);
-        ++_basketCount;
+        fillBasket(m_basketCount);
+        ++m_basketCount;
     }
 
 #ifndef RAW_OUT_DATA
@@ -94,7 +95,7 @@ void Packer::exec()
 void Packer::printTotalSquareToPlace() const
 {
     int totalSqr = 0;
-    for (auto it = _blocks.cbegin(); it != _blocks.cend(); ++it) {
+    for (auto it = m_blocks.cbegin(); it != m_blocks.cend(); ++it) {
         totalSqr += it->square();
     }
     printf("total block square is %d\n\n", totalSqr);
@@ -102,62 +103,73 @@ void Packer::printTotalSquareToPlace() const
 
 void Packer::printPlacedBlocksInfo() const
 {
- #ifndef RAW_OUT_DATA
-    printf("\nAmount of placed blocks: %d\n", _placedBlocks.size());
+    const char* COMMA = ",";
+
+#ifndef RAW_OUT_DATA
+    printf("\nAmount of placed blocks: %d\n", m_placedBlocks.size());
     printf("\nPlaced blocks:\n");
 #endif
 
-    printf("%d,%d,%d\n", _basketCount, _basket.width(), _basket.height());
-    for (auto el : _placedBlocks) {
-        printf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", el.first, el.second.topLeft().x, el.second.topLeft().y,
-                                                      el.second.topRight().x, el.second.topRight().y,
-                                                    el.second.bottomRight().x, el.second.bottomRight().y,
-                                                   el.second.bottomLeft().x, el.second.bottomLeft().y);
+    std::cout << m_basketCount << COMMA << m_basket.width() << COMMA << m_basket.height() << std::endl;
+    for (auto el : m_placedBlocks)
+    {
+        std::cout << el.first << COMMA << el.second.topLeft() << COMMA << el.second.topRight() << COMMA
+                  << el.second.bottomRight() << COMMA << el.second.bottomLeft() << std::endl;
     }
 }
 
 void Packer::printUnplacedBlocksInfo() const
 {
-    printf("\nAmount of unplaced blocks: %d\n", _blocks.size());
+    printf("\nAmount of unplaced blocks: %d\n", m_blocks.size());
 
-    if (!_blocks.empty()) {
+    if (!m_blocks.empty()) {
         printf("\nUnplaced blocks are:\n");
-        for (auto el : _blocks) {
-            printf("%d,%d\n", el.width(), el.height());
+        for (auto el : m_blocks) {
+            std::cout << el.width() << "," << el.height() << std::endl;
         }
     }
 }
 
 void Packer::printBasket() const
 {
-    printf("Basket: TopLeft= (%d, %d), BotRight= (%d, %d)\n\n",
-           _basket.topLeft().x, _basket.topLeft().y,
-           _basket.bottomRight().x, _basket.bottomRight().y);
+    std::cout << "Basket: TopLeft= (" << m_basket.topLeft() <<
+                      "), BotRight= (" << m_basket.bottomRight() << ")\n";
 }
 
 void Packer::printInputBlocksInfo() const
 {
-    printf("We have %d blocks to place\n", _blocks.size());
+    printf("We have %d blocks to place\n", m_blocks.size());
 }
 
 void Packer::fillBasket(int &basketNum)
 {
     int amount = 0;
-    Rectangle space(_basket);
+    Geometry::Rectangle space(m_basket);
 
     do
     {
-        LevelH level = LevelH(space, &_blocks, &_placedBlocks);
+        LevelH level = LevelH(space, &m_blocks, &m_placedBlocks);
 
-        for (auto it = _blocks.begin(); it != _blocks.end(); )
+#ifdef DEBUG
+        std::cout << level.availableSpace().width() << std::endl;
+#endif
+
+        for (auto it = m_blocks.begin(); it != m_blocks.end(); )
         {
-            bool ok;
-            it = level.addBlock(basketNum, it, ok);
-            if (!ok)
-                ++it;
+            auto itnext = m_blocks.end();
 
+            if (level.addBlock(basketNum, it, itnext))
+                it = itnext;
+            else
+                ++it;
         }
-        space.cutTop(level.levelSpace().height());
+
+#ifdef DEBUG
+        space.printBorders();
+        std::cout << level.availableSpace().width() << std::endl;
+#endif
+
+        space.cutTop(level.availableSpace().height());
 
         amount = level.blockAmount();
     }

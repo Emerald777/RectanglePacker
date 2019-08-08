@@ -5,11 +5,11 @@
 
 class Packer
 {
-    InputContainer _blocks;
-    OutputContainer _placedBlocks;
-    Rectangle _basket;
+    InputContainer m_blocks;
+    OutputContainer m_placedBlocks;
+    Geometry::Rectangle m_basket;
 
-    int _basketCount;
+    int m_basketCount;
 
 private:
     void fillBasket(int& basketNum);
@@ -17,8 +17,8 @@ private:
 public:
     Packer();
 
-    void setupContainer(Rectangle const& newCont);
-    Rectangle container() const;
+    void setupContainer(Geometry::Rectangle const& newCont);
+    Geometry::Rectangle container() const;
 
     void addBlock(int w, int h);
 

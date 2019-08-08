@@ -8,8 +8,7 @@ TARGET = algo
 SOURCES += main.cpp \
     rectangle.cpp \
     packer.cpp \
-    levelh.cpp \
-    point.cpp
+    levelh.cpp
 
 HEADERS += \
     rectangle.h \

@@ -1,142 +1,203 @@
 #include "rectangle.h"
 #include <algorithm>
 
-Rectangle::Rectangle() : _width(0), _height(0), _sqr(0)
+Geometry::Rectangle::Rectangle() : m_width(0), m_height(0), m_sqr(0)
 {
 }
 
-Rectangle::Rectangle(int w, int h, bool normal) : _width(w), _height(h), _sqr(w * h),
-    _topLeft(0, 0), _topRight(w, 0), _btmLeft(0, h), _btmRight(w, h)
+Geometry::Rectangle::Rectangle(float w, float h, bool normal) : m_width(w), m_height(h), m_sqr(w * h),
+    m_topLeft(0, 0), m_topRight(w, 0), m_btmLeft(0, h), m_btmRight(w, h)
 {
     if (normal) {
         /// Ширину записываем не меньшую чем высоту
         auto mnmx = std::minmax(w, h);
-        _width = mnmx.second;
-        _height = mnmx.first;
+        m_width = mnmx.second;
+        m_height = mnmx.first;
     }
 }
 
-void Rectangle::updateDimensions()
+void Geometry::Rectangle::toggleOrientation(Geometry::Orientation &o)
 {
-    auto dxdy = _topLeft - _btmRight;
-    _width = dxdy.x;
-    _height = dxdy.y;
-    _sqr = _width * _height;
+     o = (o == Orientation::Horizontal) ? Orientation::Vertical
+                                        : Orientation::Horizontal;
 }
 
-int Rectangle::square() const
+void Geometry::Rectangle::updateDimensions()
 {
-    return _sqr;
+    auto dxdy = m_btmRight - m_topLeft;
+    m_width = dxdy.x;
+    m_height = dxdy.y;
+    m_sqr = m_width * m_height;
 }
 
-Point Rectangle::topLeft() const
+float Geometry::Rectangle::square() const
 {
-    return _topLeft;
+    return m_sqr;
 }
 
-Point Rectangle::topRight() const
+Geometry::FPoint Geometry::Rectangle::topLeft() const
 {
-    return _topRight;
+    return m_topLeft;
 }
 
-Point Rectangle::bottomRight() const
+Geometry::FPoint Geometry::Rectangle::topRight() const
 {
-    return _btmRight;
+    return m_topRight;
 }
 
-Point Rectangle::bottomLeft() const
+Geometry::FPoint Geometry::Rectangle::bottomRight() const
 {
-    return _btmLeft;
+    return m_btmRight;
 }
 
-void Rectangle::move(Point const& newPos)
+Geometry::FPoint Geometry::Rectangle::bottomLeft() const
 {
-    _topLeft += newPos;
-    _topRight += newPos;
-    _btmLeft += newPos;
-    _btmRight += newPos;
+    return m_btmLeft;
 }
 
-void Rectangle::cutTop(int dx)
+void Geometry::Rectangle::move(Geometry::FPoint const& newPos)
 {
-    _topLeft.y += dx;
-    _topRight.y += dx;
+    m_topLeft += newPos;
+    m_topRight += newPos;
+    m_btmLeft += newPos;
+    m_btmRight += newPos;
+}
+
+void Geometry::Rectangle::cutTop(float dx)
+{
+    m_topLeft.y += dx;
+    m_topRight.y += dx;
     updateDimensions();
 }
 
-void Rectangle::cutBottom(int dx)
+void Geometry::Rectangle::cutBottom(float dx)
 {
-    _btmLeft.y -= dx;
-    _btmRight.y -= dx;
+    m_btmLeft.y -= dx;
+    m_btmRight.y -= dx;
     updateDimensions();
 }
 
-void Rectangle::cutLeft(int dx)
+void Geometry::Rectangle::cutLeft(float dx)
 {
-    _topLeft.x += dx;
-    _btmLeft.x += dx;
+    m_topLeft.x += dx;
+    m_btmLeft.x += dx;
     updateDimensions();
 }
 
-void Rectangle::cutRight(int dx)
+void Geometry::Rectangle::cutRight(float dx)
 {
-    _topRight.x -= dx;
-    _btmRight.x -= dx;
+    m_topRight.x -= dx;
+    m_btmRight.x -= dx;
     updateDimensions();
 }
 
-Point Rectangle::massCenter()
+Geometry::FPoint Geometry::Rectangle::massCenter() const
 {
-    return (_topLeft + _btmRight) / 2;
+    return (m_topLeft + m_btmRight) / 2;
 }
 
-Rectangle Rectangle::horizontalClone() const
+Geometry::Rectangle Geometry::Rectangle::cloneHorizontal() const
 {
-    auto mnmx = std::minmax(_width, _height);
+    auto mnmx = std::minmax(m_width, m_height);
     return Rectangle(mnmx.second, mnmx.first);
 }
 
-Rectangle Rectangle::verticalClone() const
+Geometry::Rectangle Geometry::Rectangle::cloneVertical() const
 {
-    auto mnmx = std::minmax(_width, _height);
+    auto mnmx = std::minmax(m_width, m_height);
     return Rectangle(mnmx.first, mnmx.second);
 }
 
-Rectangle Rectangle::fitWithinClone(const Rectangle &other, bool& horizontal) const
+Geometry::Rectangle Geometry::Rectangle::cloneRotated(float radians) const
 {
-    horizontal = other._width > other._height;
-    return (horizontal) ? horizontalClone() : verticalClone();
+    auto const center = massCenter();
+    Rectangle r(*this);
+
+   // (r.topLeft() - center).
+    return r;
+}
+
+Geometry::Rectangle Geometry::Rectangle::cloneOriented(Orientation const& o) const
+{
+    return (o == Orientation::Horizontal) ? cloneHorizontal() : cloneVertical();
+}
+
+Geometry::Rectangle Geometry::Rectangle::cloneFitted(const Rectangle &other) const
+{
+    return (other.m_width > other.m_height) ? cloneHorizontal() : cloneVertical();
 }
 
 
-bool Rectangle::tryToFitWithin(const Rectangle &other) const
+bool Geometry::Rectangle::tryToFit(const Rectangle &other, Orientation& orient) const
+{
+    orient = Orientation::Custom;
+    if (other < *this) return false;
+
+    bool ok = normalizedWidth() <= other.normalizedWidth() &&
+               normalizedHeight() <= other.normalizedHeight();
+    if (ok) {
+        orient = orientation();
+        if (!(m_width <= other.m_width && m_height <= other.m_height))
+            toggleOrientation(orient);
+    }
+
+    return ok;
+}
+
+bool Geometry::Rectangle::tryToFit(const Geometry::Rectangle &other) const
 {
     if (other < *this) return false;
 
-    return (normalizedWidth() <= other.normalizedWidth() &&
-            normalizedHeight() <= other.normalizedHeight());
+    return normalizedWidth() <= other.normalizedWidth() &&
+            normalizedHeight() <= other.normalizedHeight();
 }
 
-int Rectangle::width() const
+Geometry::Orientation Geometry::Rectangle::orientation() const
 {
-    return _width;
+    return (m_width > m_height) ? Orientation::Horizontal : Orientation::Vertical;
 }
 
-int Rectangle::height() const
+float Geometry::Rectangle::width() const
 {
-    return _height;
+    return m_width;
 }
 
-int Rectangle::normalizedWidth() const
+float Geometry::Rectangle::height() const
 {
-    auto mnmx = std::minmax(_width, _height);
+    return m_height;
+}
+
+float Geometry::Rectangle::normalizedWidth() const
+{
+    auto mnmx = std::minmax(m_width, m_height);
     return mnmx.second;
 }
 
-int Rectangle::normalizedHeight() const
+float Geometry::Rectangle::normalizedHeight() const
 {
-    auto mnmx = std::minmax(_width, _height);
+    auto mnmx = std::minmax(m_width, m_height);
     return mnmx.first;
 }
 
+bool Geometry::Rectangle::hasInside(const Geometry::FPoint &p) const
+{
+    return p.x >= this->topLeft().x && p.x <= this->bottomRight().x &&
+            p.y >= this->topLeft().y && p.y <= this->bottomRight().y ;
+}
 
+void Geometry::Rectangle::printBorders() const
+{
+    std::cout << "TL: " << topLeft() << " ; BR: " << bottomRight() <<
+                 " , Orient= " << static_cast<int>(orientation()) << std::endl;
+}
+
+void Geometry::Rectangle::printDimensions() const
+{
+    std::cout << "Width: " << width() << " ; Height: " << height() << std::endl;
+}
+
+std::ostream &Geometry::operator<<(std::ostream &out, const Geometry::Rectangle &r)
+{
+    out << r.topLeft() << "," << r.topRight() << "," << r.bottomRight() << "," << r.bottomLeft();
+    return out;
+}

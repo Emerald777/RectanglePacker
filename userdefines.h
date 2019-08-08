@@ -2,17 +2,17 @@
 #define USERDEFINES_H
 
 #include <map>
-#include <set>
 #include <list>
+#include <string>
 #include <functional>
-#include <type_traits>
 
 #include "rectangle.h"
 
-using InputContainer = std::list<Rectangle>;
-using OutputContainer = std::multimap<int, Rectangle>; /// key is the number of basket
+
+using InputContainer = std::list<Geometry::Rectangle>;
+using OutputContainer = std::multimap<int, Geometry::Rectangle>; /// key is the number of basket
 
 // #define DEBUG
-#define RAW_OUT_DATA
+ #define RAW_OUT_DATA
 
 #endif // USERDEFINES_H

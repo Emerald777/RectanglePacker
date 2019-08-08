@@ -1,55 +1,58 @@
 #pragma once
 
 #include "userdefines.h"
+#include "rectangle.h"
 
 /// Horizontal Level of blocks
 /// Fills the empty space of base Rectangle with other rectangles
 
 class LevelH
 {
-    Rectangle _base;
-    InputContainer *_blocks;
-    OutputContainer *_placedBlocks;
+    InputContainer *m_blocks;
+    OutputContainer *m_placedBlocks;
 
-    int _count;
-    Rectangle _available;
+    int m_count;
+    Geometry::Rectangle m_available;
 
 public:
-    LevelH(Rectangle const &base, InputContainer *in, OutputContainer *out);
+    LevelH(Geometry::Rectangle const &base, InputContainer *in, OutputContainer *out);
     ~LevelH();
 
-    Rectangle levelSpace() const;
+    Geometry::Rectangle availableSpace() const;
 
     int blockAmount() const;
 
     template<class Iter>
-    auto addBlock(int num, Iter &it, bool &ok) -> Iter
+    bool addBlock(int num, Iter const &it, Iter& next)
     {
-        ok = it->tryToFitWithin(_available);
-        if (!ok) return it;
-
-        bool horiz;
-        auto rotated = it->fitWithinClone(_available, horiz);
-        rotated.move(_available.topLeft());
-
-        if (_count == 0) {
-           _available.cutBottom(_available.height() - rotated.height());
-           _base = _available;
+#ifdef DEBUG
+        printAvailable();
+        m_available.printDimensions();
+#endif
+        Geometry::Orientation orient;
+        if (!it->tryToFit(m_available, orient)) {
+            next = it;
+            return false;
         }
 
-        ++_count;
-        _available.cutLeft(rotated.width());
+        Geometry::Rectangle rotated = it->cloneOriented(orient);
+        rotated.move(m_available.topLeft());
 
-        _placedBlocks->insert(std::pair<int, Rectangle>(num, rotated));
+        if (m_count == 0) {
+           m_available.cutBottom(m_available.height() - rotated.height());
+        }
 
+        ++m_count;
+        m_available.cutLeft(rotated.width());
+
+        m_placedBlocks->insert(std::pair<int, Geometry::Rectangle>(num, rotated));
 
 #ifdef DEBUG
         printAvailable();
-        printBlocksAmount();
-        printf("-- end of AddBlock() -- \n");
 #endif
 
-        return _blocks->erase(it);
+        next = m_blocks->erase(it);
+        return true;
     }
 
     void printAvailable() const;

@@ -1,10 +1,9 @@
 #include "levelh.h"
 
 
-LevelH::LevelH(const Rectangle &base, InputContainer *in, OutputContainer *out) :
-    _base(base), _blocks(in), _placedBlocks(out), _count(0)
+LevelH::LevelH(const Geometry::Rectangle &base, InputContainer *in, OutputContainer *out) :
+    m_blocks(in), m_placedBlocks(out), m_count(0), m_available(base)
 {
-    _available = _base;
 #ifdef DEBUG
     printf("*Level constructed* \n");
 #endif
@@ -17,24 +16,23 @@ LevelH::~LevelH()
 #endif
 }
 
-Rectangle LevelH::levelSpace() const
+Geometry::Rectangle LevelH::availableSpace() const
 {
-    return _base;
+    return m_available;
 }
 
 int LevelH::blockAmount() const
 {
-    return _count;
+    return m_count;
 }
 
 void LevelH::printAvailable() const
 {
-    printf("LevelSpace: TopLeft= (%d, %d), BotRight= (%d, %d)\n",
-           _available.topLeft().x, _available.topLeft().y,
-           _available.bottomRight().x, _available.bottomRight().y);
+    std::cout << "LevelSpace: TopLeft= (" << m_available.topLeft() <<
+                "), BotRight= (" << m_available.bottomRight() << ")\n";
 }
 
 void LevelH::printBlocksAmount() const
 {
-    printf("Level contains %d blocks\n", _count);
+    printf("Level contains %d blocks\n", m_count);
 }
