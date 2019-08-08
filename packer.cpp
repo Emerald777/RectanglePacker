@@ -61,9 +61,18 @@ void Packer::exec()
     /// Ignore blocks which are too big for our Basket
     for (auto it = m_blocks.begin(); it != m_blocks.end();)
     {
-        if (!(*it).tryToFit(m_basket)) {
+        if (!it->tryToFit(m_basket))
+        {
+            Geometry::Rectangle r;
+            if (!it->tryToFitRotated(m_basket, r))
+                ++ignoredBlocks;
+            else {
+                r.roundCoords();
+                m_placedBlocks.insert(
+                     std::pair<int, Geometry::Rectangle>(m_basketCount++, r));
+            }
+
             it = m_blocks.erase(it);
-            ++ignoredBlocks;
         }
         else
             ++it;

@@ -63,6 +63,11 @@ void Geometry::Rectangle::move(Geometry::FPoint const& newPos)
     m_btmRight += newPos;
 }
 
+void Geometry::Rectangle::moveCenter(const Geometry::FPoint &newPos)
+{
+    move(newPos - massCenter());
+}
+
 void Geometry::Rectangle::cutTop(float dx)
 {
     m_topLeft.y += dx;
@@ -108,12 +113,14 @@ Geometry::Rectangle Geometry::Rectangle::cloneVertical() const
     return Rectangle(mnmx.first, mnmx.second);
 }
 
-Geometry::Rectangle Geometry::Rectangle::cloneRotated(float radians) const
+Geometry::Rectangle Geometry::Rectangle::cloneRotated(float degrees) const
 {
-    auto const center = massCenter();
     Rectangle r(*this);
 
-   // (r.topLeft() - center).
+    r.m_topLeft = r.m_topLeft.rotateAround(degrees, massCenter());
+    r.m_topRight = r.m_topRight.rotateAround(degrees, massCenter());
+    r.m_btmLeft = r.m_btmLeft.rotateAround(degrees, massCenter());
+    r.m_btmRight = r.m_btmRight.rotateAround(degrees, massCenter());
     return r;
 }
 
@@ -152,9 +159,35 @@ bool Geometry::Rectangle::tryToFit(const Geometry::Rectangle &other) const
             normalizedHeight() <= other.normalizedHeight();
 }
 
+bool Geometry::Rectangle::tryToFitRotated(const Rectangle &other, Rectangle &fitted) const
+{
+    //auto r = cloneHorizontal();
+    fitted = cloneHorizontal();
+
+    fitted.moveCenter(other.massCenter());
+  //  std::cout << r << std::endl;
+
+    auto deg = atan(other.height() / other.width()) * 180 / M_PI;
+   // std::cout << "Degrees diag = " << deg << std::endl;
+    fitted = fitted.cloneRotated(deg);
+
+  //  std::cout << r << std::endl;
+    bool ok = (other.hasInside(fitted.topLeft()) && other.hasInside(fitted.topRight()) &&
+               other.hasInside(fitted.bottomLeft()) && other.hasInside(fitted.bottomRight()));
+    return ok;
+}
+
 Geometry::Orientation Geometry::Rectangle::orientation() const
 {
     return (m_width > m_height) ? Orientation::Horizontal : Orientation::Vertical;
+}
+
+void Geometry::Rectangle::roundCoords()
+{
+    m_topLeft.makeRounded();
+    m_topRight.makeRounded();
+    m_btmLeft.makeRounded();
+    m_btmRight.makeRounded();
 }
 
 float Geometry::Rectangle::width() const

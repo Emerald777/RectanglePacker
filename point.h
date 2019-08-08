@@ -59,6 +59,11 @@ namespace Geometry
             return res + center;
         }
 
+        void makeRounded() {
+            x = std::round(x);
+            y = std::round(y);
+        }
+
         void printString() const
         {
             std::cout << "Point = (" << x << ", " << y << ")" << std::endl;

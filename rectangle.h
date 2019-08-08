@@ -41,6 +41,7 @@ namespace Geometry
 
 
         void move(const FPoint &newPos);
+        void moveCenter(const FPoint &newPos);
 
         void cutTop(float dx);
         void cutBottom(float dx);
@@ -51,15 +52,17 @@ namespace Geometry
 
         Rectangle cloneHorizontal() const;
         Rectangle cloneVertical() const;
-        Rectangle cloneRotated(float radians) const;
+        Rectangle cloneRotated(float degrees) const;
         Rectangle cloneOriented(const Orientation &o) const;
         Rectangle cloneFitted(const Rectangle& other) const;
 
         bool tryToFit(const Rectangle& other, Orientation& orient) const;
         bool tryToFit(const Rectangle& other) const;
+        bool tryToFitRotated(const Rectangle& other, Rectangle &fitted) const;
 
         Orientation orientation() const;
 
+        void roundCoords();
 
         float width() const;
         float height() const;

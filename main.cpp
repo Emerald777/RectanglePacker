@@ -27,7 +27,14 @@ bool applyInput(Packer &pck)
 
 int main()
 {
-//    Geometry::Rectangle big(300, 100);
+   // Geometry::Rectangle big(200, 300);
+
+  //  Geometry::Rectangle b(10, 314);
+//    b.moveCenter(big.massCenter());
+//    std::cout << "Moved = " << b << std::endl;
+//    //auto rot = b.cloneRotated(45);
+//   // std::cout << "rotation = " << rot << std::endl;
+ //   std::cout << std::boolalpha << b.tryToFitRotated(big) << std::endl;
 
 //    InputContainer in_cnt;
 //    OutputContainer out_cnt;
@@ -57,22 +64,6 @@ int main()
 
 //        std::cout << "output size = " << out_cnt.size() << std::endl;
 //    }
-//    bool hor = false;
-//    if (b.tryToFitWithin(r)) {
-//        auto n = b.fitWithinClone(r, hor);
-//        std::cout << n << std::endl; //.printBorders();
-//        std::cout << std::boolalpha << hor << std::endl;
-//    }
-
-//    r.printBorders();
-//    r.move(Geometry::FPoint(5,5));
-//    r.printBorders();
-//    r.cutTop(10);
-//    r.printBorders();
-//    r.cutLeft(10);
-//    r.printBorders();
-//    r.cutBottom(5);
-//    r.printBorders();
 
 //    Geometry::FPoint pt(3,3);
 //    Geometry::FPoint pt2 = pt.rotateAround(-90.0f, Geometry::FPoint(1,1));

@@ -13,6 +13,6 @@ using InputContainer = std::list<Geometry::Rectangle>;
 using OutputContainer = std::multimap<int, Geometry::Rectangle>; /// key is the number of basket
 
 // #define DEBUG
- #define RAW_OUT_DATA
+// #define RAW_OUT_DATA
 
 #endif // USERDEFINES_H
